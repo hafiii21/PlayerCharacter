@@ -1,0 +1,83 @@
+using UnityEngine;
+
+public class CharacterController : MonoBehaviour
+{
+    // Movement speed variables
+    public float walkSpeed = 5f;
+    public float runSpeed = 10f;
+    public float jumpForce = 10f;
+    
+    // Movement key bindings
+    public KeyCode moveLeft = KeyCode.A;
+    public KeyCode moveRight = KeyCode.D;
+    public KeyCode jump = KeyCode.Space;
+    public KeyCode run = KeyCode.LeftShift;
+    
+    // Internal state variables
+    private bool isGrounded = true;
+    private bool isRunning = false;
+    
+    private Rigidbody2D rb;
+    
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    
+    void Update()
+    {
+        // Check if character is grounded
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 0.1f);
+        
+        // Handle movement keys
+        if (Input.GetKey(moveLeft))
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+            transform.Translate(-walkSpeed * Time.deltaTime, 0, 0);
+        }
+        else if (Input.GetKey(moveRight))
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+            transform.Translate(walkSpeed * Time.deltaTime, 0, 0);
+        }
+        
+        // Handle jump key
+        if (Input.GetKeyDown(jump) && isGrounded)
+        {
+            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+        }
+        
+        // Handle run key
+        if (Input.GetKeyDown(run))
+        {
+            isRunning = true;
+        }
+        else if (Input.GetKeyUp(run))
+        {
+            isRunning = false;
+        }
+    }
+    
+    void FixedUpdate()
+    {
+        // Apply running speed if necessary
+        if (isRunning)
+        {
+            rb.velocity = new Vector2(transform.localScale.x * runSpeed, rb.velocity.y);
+        }
+        else
+        {
+            rb.velocity = new Vector2(transform.localScale.x * walkSpeed, rb.velocity.y);
+        }
+        
+        // Handle idle animation
+        if (rb.velocity.magnitude < 0.1f && isGrounded)
+        {
+            // Play idle animation
+        }
+        else
+        {
+            // Play walk/run animation
+        }
+    }
+}
